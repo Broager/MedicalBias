@@ -27,7 +27,7 @@ class Logger(object):
         pass
 
 def main():
-    batch_size = 750
+    batch_size = 1
     train_dir = '/dtu-compute/ADNIbias/Oliver/data_train.csv'
     val_dir = '/dtu-compute/ADNIbias/Oliver/data_val.csv'
     weights = [1, 0.02]

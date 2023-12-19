@@ -1,44 +1,59 @@
-import numpy as np
-import nibabel as nb
-import skimage as ski
 from matplotlib import pyplot as plt
+from torch.utils.data import DataLoader
+from ExternalPackages.models import VxmDense_1
+import torch
+import datasets
+import xlsxwriter as xs
+import numpy as np
+import os
 import voxelmorph as vxm
-import neurite as ne
 
-data = np.asanyarray(nb.load('norm_mni305.mgz').dataobj)
-atlas = np.asanyarray(nb.load('brain.mgz').dataobj)
-print(np.shape(atlas))
-vol_shape = (256, 256, 256)
-nb_features = [
-    [16, 32, 32, 32],
-    [32, 32, 32, 32, 32, 16, 16]
-]
+# import voxelmorph with pytorch backend
+os.environ['NEURITE_BACKEND'] = 'pytorch'
+os.environ['VXM_BACKEND'] = 'pytorch'
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-# build vxm network
-vxm_model = vxm.networks.VxmDense(vol_shape, nb_features, int_steps=0);
+def euclidianDist(image1, image2):
+    # Flatten 3d image arrays
+    i1 = np.matrix.flatten(image1)
+    i2 = np.matrix.flatten(image2)
 
-val_volume_1 = data
-val_volume_2 = atlas
+    return np.linalg.norm(i1 - i2)
 
-val_input = [
-    val_volume_1[np.newaxis, ..., np.newaxis],
-    val_volume_2[np.newaxis, ..., np.newaxis]
-]
+def main():
+    img_size = (160,192,224)
+    weights = [1, 0.02]
 
-vxm_model.load_weights('brain_3d.h5')
+    model = VxmDense_1(img_size)
+    # path = 'C:\Users\olive\OneDrive\Skrivebord\Bachelorprojekt2023\VoxelMorph_1_Validation_dsc0.720.pth.tar'
+    model_dict = torch.load('VoxelMorph_1_Validation_dsc0.720.pth.tar', map_location=torch.device('cpu'))['state_dict']
+    model.load_state_dict(model_dict)
+    test_set = datasets.FreesurferDataset()
+    test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=1, pin_memory=True, drop_last=True)
+    # load and set up model
+    # model = vxm.networks.VxmDense.load('vxm_dense_brain.h5', 'cpu')
+    print(1)
+    # model.eval()
+    len = 983
+    print(2)
+    i = 0
+    temp = np.zeros(len)
+    for (image, atlas, gender, age)  in test_loader:
+        x_in = torch.cat((image, atlas),dim=1)
+        x_def, flow = model(x_in)
+        temp[i] = euclidianDist(image.detach().numpy(), x_def.detach().numpy())
+        i = i+1
+    plt.plot(x_def)
+    plt.show()
+    print(3)
+    # Create worksheet in excel
+    workbook = xs.Workbook('Results.xlsx')
+    worksheet = workbook.add_worksheet()
+    worksheet.write('A1','Euclidian Distance')
+    for k in range(len):
+        val = k + 2
+        worksheet.write('A'+str(val), temp[k])
+    workbook.close()
 
-val_pred = vxm_model.predict(val_input);
-
-moved_pred = val_pred[0].squeeze()
-pred_warp = val_pred[1]
-
-mid_slices_fixed = [np.take(val_volume_2, vol_shape[d]//2, axis=d) for d in range(3)]
-mid_slices_fixed[1] = np.rot90(mid_slices_fixed[1], 1)
-mid_slices_fixed[2] = np.rot90(mid_slices_fixed[2], -1)
-
-mid_slices_pred = [np.take(moved_pred, vol_shape[d]//2, axis=d) for d in range(3)]
-mid_slices_pred[1] = np.rot90(mid_slices_pred[1], 1)
-mid_slices_pred[2] = np.rot90(mid_slices_pred[2], -1)
-ne.plot.slices(mid_slices_fixed + mid_slices_pred, cmaps=['gray'], do_colorbars=True, grid=[2,3]);
-
-warp_model = vxm.networks.Transform(vol_shape, interp_method='nearest')
+if __name__ == '__main__':
+    main()
