@@ -31,7 +31,7 @@ def main():
     img_size = (160,192,224)
 
     model = VxmDense_1(img_size)
-    model_dict = torch.load('VoxelMorph_1_Validation_dsc0.720.pth.tar', map_location=torch.device('cuda'))['state_dict']
+    model_dict = torch.load('VoxelMorph_1_Validation_dsc0.720.pth.tar', map_location=torch.device('cpu'))['state_dict']
     model.load_state_dict(model_dict)
     model.cuda()
 
