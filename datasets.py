@@ -10,7 +10,7 @@ class FreesurferDataset(Dataset):
         csv_dir = 'data_train.csv'
         csv = pd.read_csv(csv_dir)
         self.csv = csv.reset_index(drop=True)
-        atlas = nd.zoom(np.asanyarray(nb.load('average305_t1_tal_lin.nii').dataobj), (160/172,192/220,224/156))
+        atlas = nd.zoom(np.asanyarray(nb.load('padded_atlas.mgz').dataobj), (0.625, 0.75, 0.875))
         atlas = (atlas-np.min(atlas))/(np.max(atlas)-np.min(atlas))
         self.atlas = atlas/np.max(atlas)
     
@@ -24,7 +24,6 @@ class FreesurferDataset(Dataset):
         image = np.asanyarray(nb.load(path).dataobj)
         atlas = self.atlas
         image = nd.zoom(image, (0.625, 0.75, 0.875))
-        image = image[::-1,:,::-1]
         image = (image-np.min(image))/(np.max(image)-np.min(image))
 
         image, atlas = image[None, ...], atlas[None, ...]
