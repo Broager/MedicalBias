@@ -1,4 +1,4 @@
-#!/bin/sh
+source venv_1/bin/activate
 ### General options
 ### –- specify queue --
 BSUB -q gpuv100
