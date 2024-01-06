@@ -31,9 +31,9 @@ def main():
     img_size = (160,192,224)
 
     model = VxmDense_1(img_size)
-    model_dict = torch.load('VoxelMorph_1_Validation_dsc0.720.pth.tar', map_location=torch.device('cpu'))['state_dict']
+    model_dict = torch.load('VoxelMorph_1_Validation_dsc0.720.pth.tar')['state_dict']
     model.load_state_dict(model_dict)
-    # model.cuda()
+    model.cuda()
 
     test_set = datasets.FreesurferDataset()
     test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=1, pin_memory=True, drop_last=True)
