@@ -56,6 +56,7 @@ def main():
 
     # Use the model
     for (image, atlas, gender, age)  in test_loader:
+        image, atlas = image.cuda(), atlas.cuda()
         x_in = torch.cat((image, atlas),dim=1)
         x_def, flow = model(x_in)
         temp[i,0] = age
