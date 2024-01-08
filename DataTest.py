@@ -1,7 +1,6 @@
-
 print("We start here")
 from torch.utils.data import DataLoader
-from ExternalPackages.models import VxmDense_1
+from models import VxmDense_1
 import torch
 import datasets
 import xlsxwriter as xs
