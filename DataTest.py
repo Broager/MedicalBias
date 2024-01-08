@@ -6,6 +6,7 @@ import xlsxwriter as xs
 import numpy as np
 import os
 import nibabel as nb
+import shutil
 from skimage.metrics import structural_similarity as ssim
 
 # import voxelmorph with pytorch backend
@@ -49,8 +50,10 @@ def main():
 
     col_path = os.path.join(cur_path, "Voxelmorph_Transformed")
 
-    if os.path.exists(cur_path) == False:
-        os.mkdir(col_path)
+    if os.path.exists(cur_path) == True:
+        shutil.rmtree(cur_path)
+    
+    os.mkdir(col_path)
 
     os.chdir(col_path)
 
@@ -64,6 +67,7 @@ def main():
         temp[i,1] = gender
         image = np.squeeze(image.cpu().detach().numpy())
         x_def = np.squeeze(x_def.cpu().detach().numpy())
+        flow = np.squeeze(flow.cpu().detach().numpy())
         temp[i,2] = euclidianDist(image, x_def)
         temp[i,3] = MSE(image, x_def)
         temp[i,4] = ssim(image, x_def, data_range=x_def.max() - x_def.min())
