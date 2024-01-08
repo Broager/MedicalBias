@@ -7,10 +7,10 @@ from scipy import ndimage as nd
 
 class FreesurferDataset(Dataset):
     def __init__(self):
-        csv_dir = 'data_train.csv'
+        csv_dir = '/dtu-compute/ADNIbias/Oliver/data_train.csv'
         csv = pd.read_csv(csv_dir)
         self.csv = csv.reset_index(drop=True)
-        atlas = nd.zoom(np.asanyarray(nb.load('padded_atlas.mgz').dataobj), (0.625, 0.75, 0.875))
+        atlas = nd.zoom(np.asanyarray(nb.load('/dtu-compute/ADNIbias/Oliver/padded_atlas.mgz').dataobj), (0.625, 0.75, 0.875))
         atlas = (atlas-np.min(atlas))/(np.max(atlas)-np.min(atlas))
         self.atlas = atlas/np.max(atlas)
     
@@ -43,10 +43,3 @@ class FreesurferDataset(Dataset):
 
     def __len__(self):
         return len(self.csv)
-
-if __name__ == '__main__':
-    dataset = FreesurferDataset()
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size = 1)
-
-    for i, (image, atlas, gender, age) in enumerate(dataloader):
-        print(image)

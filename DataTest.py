@@ -31,7 +31,7 @@ def main():
     img_size = (160,192,224)
 
     model = VxmDense_1(img_size)
-    model_dict = torch.load('VoxelMorph_1_Validation_dsc0.720.pth.tar')['state_dict']
+    model_dict = torch.load('/dtu-compute/ADNIbias/Oliver/VoxelMorph_1_Validation_dsc0.720.pth.tar')['state_dict']
     model.load_state_dict(model_dict)
     model.cuda()
 
@@ -45,7 +45,7 @@ def main():
 
 
     # Create folder for deformed images
-    cur_path = os.getcwd()
+    cur_path = '/dtu-compute/ADNIbias/Oliver'
 
     col_path = os.path.join(cur_path, "Voxelmorph_Transformed")
 
