@@ -67,7 +67,8 @@ def main():
         temp[i,2] = euclidianDist(image, x_def)
         temp[i,3] = MSE(image, x_def)
         temp[i,4] = ssim(image, x_def, data_range=x_def.max() - x_def.min())
-        nb.save(nb.Nifti1Image(image.cpu().detach().numpy(), affine=np.eye(4)),str(i)+'.nii')
+        print(temp[i,4])
+        nb.save(nb.Nifti1Image(image, affine=np.eye(4)),str(i)+'.nii')
         nb.save(nb.Nifti1Image(x_def, affine=np.eye(4)),str(i)+'_deform.nii')
         nb.save(nb.Nifti1Image(flow, affine=np.eye(4)),str(i)+'_flow.nii')
         i = i+1
