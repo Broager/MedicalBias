@@ -41,7 +41,7 @@ def main():
 
     len = 983
     i = 0
-    temp = np.zeros([len,5])
+    temp = np.zeros([len,5], dtype=object)
 
 
     # Create folder for deformed images
