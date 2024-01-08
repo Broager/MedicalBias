@@ -62,8 +62,8 @@ def main():
         x_def, flow = model(x_in)
         temp[i,0] = age
         temp[i,1] = gender
-        image = image.cpu().detach().numpy()
-        x_def = x_def.cpu().detach().numpy()
+        image = np.squeeze(image.cpu().detach().numpy())
+        x_def = np.squeeze(x_def.cpu().detach().numpy())
         temp[i,2] = euclidianDist(image, x_def)
         temp[i,3] = MSE(image, x_def)
         temp[i,4] = ssim(image, x_def, data_range=x_def.max() - x_def.min())
