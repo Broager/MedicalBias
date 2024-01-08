@@ -6,7 +6,6 @@ import xlsxwriter as xs
 import numpy as np
 import os
 import nibabel as nb
-import shutil
 from skimage.metrics import structural_similarity as ssim
 
 # import voxelmorph with pytorch backend
@@ -50,10 +49,8 @@ def main():
 
     col_path = os.path.join(cur_path, "Voxelmorph_Transformed")
 
-    if os.path.exists(cur_path) == True:
-        shutil.rmtree(cur_path)
-    
-    os.mkdir(col_path)
+    if os.path.exists(cur_path) == False:
+        os.mkdir(col_path)
 
     os.chdir(col_path)
 
