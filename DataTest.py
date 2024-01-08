@@ -49,7 +49,8 @@ def main():
 
     col_path = os.path.join(cur_path, "Voxelmorph_Transformed")
 
-    os.mkdir(col_path)
+    if os.path.exists(cur_path) == False:
+        os.mkdir(col_path)
 
     os.chdir(col_path)
 
