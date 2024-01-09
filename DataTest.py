@@ -74,6 +74,8 @@ def main():
         nb.save(nb.Nifti1Image(flow, affine=np.eye(4)),str(i)+'_flow.nii')
         i = i+1
 
+
+    print("Making Excel")
     # Create worksheet in excel
     workbook = xs.Workbook('Voxelmorph_MNI305_Metrics.xlsx')
     worksheet = workbook.add_worksheet()
@@ -82,13 +84,15 @@ def main():
     worksheet.write('C1','Euclidian Distance')
     worksheet.write('D1','MSE value')
     worksheet.write('E1','SSIM Score')
+    
     for k in range(len):
         val = k + 2
         worksheet.write('A'+str(val), temp[k,0])
-        worksheet.write('B'+str(val), temp[k,1])
+        worksheet.write('B'+str(val), ''.join(temp[k,1]))
         worksheet.write('C'+str(val), temp[k,2])
         worksheet.write('D'+str(val), temp[k,3])
         worksheet.write('E'+str(val), temp[k,4])
+    
     workbook.close()
 
 if __name__ == '__main__':
