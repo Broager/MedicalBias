@@ -55,7 +55,7 @@ def main():
 
     os.chdir(col_path)
 
-
+    print("Here we go!")
     # Use the model
     for (image, atlas, gender, age)  in test_loader:
         image, atlas = image.cuda(), atlas.cuda()
@@ -69,7 +69,6 @@ def main():
         temp[i,2] = euclidianDist(image, x_def)
         temp[i,3] = MSE(image, x_def)
         temp[i,4] = ssim(image, x_def, data_range=x_def.max() - x_def.min())
-        print(temp[i,4])
         nb.save(nb.Nifti1Image(image, affine=np.eye(4)),str(i)+'.nii')
         nb.save(nb.Nifti1Image(x_def, affine=np.eye(4)),str(i)+'_deform.nii')
         nb.save(nb.Nifti1Image(flow, affine=np.eye(4)),str(i)+'_flow.nii')
