@@ -1,18 +1,10 @@
-print("We start here")
-from torch.utils.data import DataLoader
-from models import VxmDense_1
-import torch
-import datasets
 import xlsxwriter as xs
 import numpy as np
 import os
 import nibabel as nb
 from skimage.metrics import structural_similarity as ssim
+from scipy import ndimage as nd
 
-# import voxelmorph with pytorch backend
-os.environ['NEURITE_BACKEND'] = 'pytorch'
-os.environ['VXM_BACKEND'] = 'pytorch'
-os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 def euclidianDist(image1, image2):
     # Flatten 3d image arrays
@@ -29,21 +21,8 @@ def MSE(imageA, imageB):
 
 
 def main():
-    img_size = (160,192,224)
-
-    model = VxmDense_1(img_size)
-    model_dict = torch.load('/dtu-compute/ADNIbias/Oliver/VoxelMorph_1_Validation_dsc0.720.pth.tar')['state_dict']
-    model.load_state_dict(model_dict)
-    model.cuda()
-
-    test_set = datasets.FreesurferDataset()
-    test_loader = DataLoader(test_set, batch_size=1, shuffle=False, num_workers=1, pin_memory=True, drop_last=True)
-
-
     len = 983
     i = 0
-    temp = np.zeros([len,5], dtype=object)
-
 
     # Create folder for deformed images
     cur_path = '/dtu-compute/ADNIbias/Oliver'
@@ -55,43 +34,36 @@ def main():
 
     os.chdir(col_path)
 
-    print("Here we go!")
-    # Use the model
-    for (image, atlas, gender, age)  in test_loader:
-        image, atlas = image.cuda(), atlas.cuda()
-        x_in = torch.cat((image, atlas),dim=1)
-        x_def, flow = model(x_in)
-        temp[i,0] = age
-        temp[i,1] = gender
-        image = np.squeeze(image.cpu().detach().numpy())
-        x_def = np.squeeze(x_def.cpu().detach().numpy())
-        flow = np.squeeze(flow.cpu().detach().numpy())
-        temp[i,2] = euclidianDist(image, x_def)
-        temp[i,3] = MSE(image, x_def)
-        temp[i,4] = ssim(image, x_def, data_range=x_def.max() - x_def.min())
-        nb.save(nb.Nifti1Image(image, affine=np.eye(4)),str(i)+'.nii')
-        nb.save(nb.Nifti1Image(x_def, affine=np.eye(4)),str(i)+'_deform.nii')
-        nb.save(nb.Nifti1Image(flow, affine=np.eye(4)),str(i)+'_flow.nii')
-        i = i+1
+    atlas = nd.zoom(np.asanyarray(nb.load('/dtu-compute/ADNIbias/Oliver/padded_atlas.mgz').dataobj), (0.625, 0.75, 0.875))
 
-
-    print("Making Excel")
     # Create worksheet in excel
-    workbook = xs.Workbook('Voxelmorph_MNI305_Metrics.xlsx')
+    workbook = xs.Workbook('Voxelmorph_MNI305_Metrics2.xlsx')
     worksheet = workbook.add_worksheet()
-    worksheet.write('A1','Age')
-    worksheet.write('B1','Sex')
-    worksheet.write('C1','Euclidian Distance')
-    worksheet.write('D1','MSE value')
-    worksheet.write('E1','SSIM Score')
-    
+    worksheet.write('A1','Euclidian Distance 1')
+    worksheet.write('B1','MSE value 1')
+    worksheet.write('C1','SSIM Score 1')
+    worksheet.write('A1','Euclidian Distance 2')
+    worksheet.write('B1','MSE value 2')
+    worksheet.write('C1','SSIM Score 2')
+    worksheet.write('A1','Euclidian Distance 3')
+    worksheet.write('B1','MSE value 3')
+    worksheet.write('C1','SSIM Score 3')
+
+    # Use the model
     for k in range(len):
+        image = np.asanyarray(nb.load(str(i)+'.nii').dataobj)
+        x_def = np.asanyarray(nb.load(str(i)+'_deform.nii').dataobj)
+        i = i+1
         val = k + 2
-        worksheet.write('A'+str(val), temp[k,0])
-        worksheet.write('B'+str(val), ''.join(temp[k,1]))
-        worksheet.write('C'+str(val), temp[k,2])
-        worksheet.write('D'+str(val), temp[k,3])
-        worksheet.write('E'+str(val), temp[k,4])
+        worksheet.write('A'+str(val), euclidianDist(image, x_def))
+        worksheet.write('B'+str(val), MSE(image, x_def))
+        worksheet.write('C'+str(val), ssim(image, x_def, data_range=x_def.max() - x_def.min()))
+        worksheet.write('D'+str(val), euclidianDist(image, atlas))
+        worksheet.write('E'+str(val), MSE(image, atlas))
+        worksheet.write('F'+str(val), ssim(image, atlas, data_range=atlas.max() - atlas.min()))
+        worksheet.write('G'+str(val), euclidianDist(atlas, x_def))
+        worksheet.write('H'+str(val), MSE(atlas, x_def))
+        worksheet.write('I'+str(val), ssim(atlas, x_def, data_range=x_def.max() - x_def.min()))
     
     workbook.close()
 
