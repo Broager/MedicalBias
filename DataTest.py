@@ -37,17 +37,17 @@ def main():
     atlas = nd.zoom(np.asanyarray(nb.load('/dtu-compute/ADNIbias/Oliver/padded_atlas.mgz').dataobj), (0.625, 0.75, 0.875))
 
     # Create worksheet in excel
-    workbook = xs.Workbook('Voxelmorph_MNI305_Metrics2.xlsx')
+    workbook = xs.Workbook('Voxelmorph_MNI305_Metrics3.xlsx')
     worksheet = workbook.add_worksheet()
     worksheet.write('A1','Euclidian Distance 1')
     worksheet.write('B1','MSE value 1')
     worksheet.write('C1','SSIM Score 1')
-    worksheet.write('A1','Euclidian Distance 2')
-    worksheet.write('B1','MSE value 2')
-    worksheet.write('C1','SSIM Score 2')
-    worksheet.write('A1','Euclidian Distance 3')
-    worksheet.write('B1','MSE value 3')
-    worksheet.write('C1','SSIM Score 3')
+    worksheet.write('D1','Euclidian Distance 2')
+    worksheet.write('E1','MSE value 2')
+    worksheet.write('F1','SSIM Score 2')
+    worksheet.write('G1','Euclidian Distance 3')
+    worksheet.write('H1','MSE value 3')
+    worksheet.write('I1','SSIM Score 3')
 
     # Use the model
     for k in range(len):
@@ -58,12 +58,12 @@ def main():
         worksheet.write('A'+str(val), euclidianDist(image, x_def))
         worksheet.write('B'+str(val), MSE(image, x_def))
         worksheet.write('C'+str(val), ssim(image, x_def, data_range=x_def.max() - x_def.min()))
-        worksheet.write('D'+str(val), euclidianDist(image, atlas))
-        worksheet.write('E'+str(val), MSE(image, atlas))
+        worksheet.write('D'+str(val), euclidianDist(atlas, image))
+        worksheet.write('E'+str(val), MSE(atlas, image))
         worksheet.write('F'+str(val), ssim(image, atlas, data_range=atlas.max() - atlas.min()))
-        worksheet.write('G'+str(val), euclidianDist(atlas, x_def))
-        worksheet.write('H'+str(val), MSE(atlas, x_def))
-        worksheet.write('I'+str(val), ssim(atlas, x_def, data_range=x_def.max() - x_def.min()))
+        worksheet.write('G'+str(val), euclidianDist(x_def, atlas))
+        worksheet.write('H'+str(val), MSE(x_def, atlas))
+        worksheet.write('I'+str(val), ssim(atlas, x_def, data_range=atlas.max() - atlas.min()))
     
     workbook.close()
 
