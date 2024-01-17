@@ -35,7 +35,8 @@ def main():
     os.chdir(col_path)
 
     atlas = nd.zoom(np.asanyarray(nb.load('/dtu-compute/ADNIbias/Oliver/padded_atlas.mgz').dataobj), (0.625, 0.75, 0.875))
-
+    atlas = (atlas-np.min(atlas))/(np.max(atlas)-np.min(atlas))
+    
     # Create worksheet in excel
     workbook = xs.Workbook('Voxelmorph_MNI305_Metrics3.xlsx')
     worksheet = workbook.add_worksheet()
